@@ -1,0 +1,122 @@
+<!-- 
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" type="text/css" href="/styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <video class="input_video"></video>
+    <canvas class="output_canvas" width="1280px" height="720px"></canvas>
+  </div>
+  <script type="module">
+    const videoElement = document.getElementsByClassName('input_video')[0];
+    const canvasElement = document.getElementsByClassName('output_canvas')[0];
+    const canvasCtx = canvasElement.getContext('2d');
+    
+    function onResults(results) {
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      canvasCtx.drawImage(
+          results.image, 0, 0, canvasElement.width, canvasElement.height);
+      if (results.multiHandLandmarks) {
+        for (const landmarks of results.multiHandLandmarks) {
+          drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
+                         {color: '#00FF00', lineWidth: 5});
+          drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 2});
+
+          const xOffset = 0; // adjust this value as needed
+const yOffset = 0; // adjust this value as needed
+
+// Get the x and y coordinates of the index finger tip
+const x = landmarks[8].x;
+const y = landmarks[8].y;
+// Define the offsets
+
+
+// Calculate the distance from the center of the image
+const distanceFromCenter = Math.abs(x - 0.5);
+
+// Define the correction factor
+const correctionFactor = 1 + distanceFromCenter * 2;
+
+// Apply the offset and flip the x coordinate, and apply the correction factor
+const x_relative = (1 - ((x - xOffset / videoElement.videoWidth) * correctionFactor)) * videoElement.videoWidth;
+const y_relative = (y + yOffset / videoElement.videoHeight) * videoElement.videoHeight;
+
+// Calculate the scaling factors for the x and y coordinates
+const x_scale = window.innerWidth / videoElement.videoWidth;
+const y_scale = window.innerHeight / videoElement.videoHeight;
+
+// Adjust the x and y coordinates
+const x_adjusted = x_relative * x_scale;
+const y_adjusted = y_relative * y_scale;
+
+
+      // Send the coordinates to the /api/moveMouse endpoint
+      // fetch(`${window.location.origin}/api/moveMouse2`, {
+      fetch(`${window.location.origin}/moveMouse2`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ x: x_adjusted, y: y_adjusted }),
+      });
+    }
+  }
+      canvasCtx.restore();
+    }
+    
+    const hands = new Hands({locateFile: (file) => {
+      return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+    }});
+    hands.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+    hands.onResults(onResults);
+    
+    const camera = new Camera(videoElement, {
+      onFrame: async () => {
+        await hands.send({image: videoElement});
+      },
+      width: 1280,
+      height: 720
+    });
+    camera.start();
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Main Page</title>
+    <script type="text/javascript">
+        window.onload = function() {
+            const popUpWidth = 800;  // Set the width of the pop-up window
+            const popUpHeight = 600; // Set the height of the pop-up window
+            const left = (window.screen.width - popUpWidth) / 2;
+            const top = (window.screen.height - popUpHeight) / 2;
+            const popUpFeatures = `width=${popUpWidth},height=${popUpHeight},top=${top},left=${left}`;
+
+            // Open the MediaPipe canvas in a new window
+            window.open('/mediapipe.html', 'MediaPipeWindow', popUpFeatures);
+        };
+    </script>
+</head>
+<body>
+    <h1>Welcome to the Main Page</h1>
+    <p>This page automatically opens MediaPipe in a new window.</p>
+</body>
+</html>

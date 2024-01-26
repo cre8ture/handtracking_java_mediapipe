@@ -1,0 +1,8 @@
+.input_video {
+    transform: scaleX(-1);
+    display: none;
+  }
+
+  .output_canvas {
+    transform: scaleX(-1);
+  }

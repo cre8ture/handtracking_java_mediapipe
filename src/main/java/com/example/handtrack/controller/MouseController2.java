@@ -14,22 +14,25 @@ import java.awt.Toolkit;
 @RestController
 public class MouseController2 {
 
+    private static final int Y_OFFSET = -30; // Adjust this offset based on testing
+
     @PostMapping("/moveMouse2")
     public void moveMouse2(@RequestBody Map<String, Double> payload) {
         try {
             Robot robot = new Robot();
 
-            // Get the screen dimensions
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             double screenWidth = screenSize.getWidth();
             double screenHeight = screenSize.getHeight();
 
-            // Get the current mouse position
             Point mousePos = MouseInfo.getPointerInfo().getLocation();
 
-            // Apply deltas to the current mouse position, scaled to screen size
-            int newX = (int) Math.min(Math.max(mousePos.x + payload.get("x") * screenWidth, 0), screenWidth);
-            int newY = (int) Math.min(Math.max(mousePos.y + payload.get("y") * screenHeight, 0), screenHeight);
+            double sensitivity = 1; // A value less than 1 reduces sensitivity, greater than 1 increases it
+
+            int newX = (int) Math.min(Math.max(mousePos.x + (payload.get("x") * screenWidth * sensitivity), 0),
+                    screenWidth - 1);
+            int newY = (int) Math.min(Math.max(mousePos.y + (payload.get("y") * screenHeight * sensitivity), 0),
+                    screenHeight - 1);
 
             System.out.println("newX: " + newX + ", newY: " + newY);
 
